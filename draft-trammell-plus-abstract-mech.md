@@ -2,7 +2,7 @@
 title: Abstract Mechanisms for a Cooperative Path Layer under Endpoint Contol
 abbrev: Path Layer Mechanisms
 docname: draft-trammell-plus-abstract-mech
-date: 2016-08-02
+date: 2016-08-03
 category: info
 
 ipr: trust200902
@@ -25,6 +25,7 @@ normative:
 
 informative:
   RFC4301:
+  RFC7049:
 
 --- abstract
 
