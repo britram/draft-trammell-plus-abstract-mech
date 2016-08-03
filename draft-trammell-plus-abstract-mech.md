@@ -25,7 +25,6 @@ normative:
 
 informative:
   RFC4301:
-  I-D.trammell-privsec-defeating-tcpip-meta:
 
 --- abstract
 
@@ -55,14 +54,13 @@ absence of widespread deployment of IPsec {{RFC4301}} further erode this
 boundary. 
 
 Evolution above the network layer and integrity of transport layer functions
-(on which see {{I-D.trammell-privsec-defeating-tcpip-meta}}) is only
-possible if this layer boundary is reinforced. Asking on-path devices nicely
-not to muck about in the transport layer and below -- stating in an RFC that
-devices on path MUST NOT use or modify some header field -- has not proven to
-be of much use here. A new approach is necessary, consisting of cryptographic
-integrity protection of network and transport layer headers which the
-endpoints choose to expose to the path, and cryptographic confidentiality
-protection of transport layer headers not to be exposed.
+is only possible if this layer boundary is reinforced. Asking on-path devices
+nicely not to muck about in the transport layer and below -- stating in an RFC
+that devices on path MUST NOT use or modify some header field -- has not
+proven to be of much use here. A new approach is necessary, consisting of
+cryptographic integrity protection of network and transport layer headers
+which the endpoints choose to expose to the path, and cryptographic
+confidentiality protection of transport layer headers not to be exposed.
 
 We define the "path layer" to consist of the headers and associated functions
 that are explicitly exposed to devices along the path in this scheme. This
