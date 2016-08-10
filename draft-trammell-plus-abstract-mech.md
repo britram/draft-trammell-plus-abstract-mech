@@ -229,7 +229,7 @@ A few details must be considered in the implementation of the mechanisms
 described above; some are general, and some apply only in specific
 circumstances. They are described in the subsections below.
 
-## Cryptographic Context Bootstrapping
+## Cryptographic Context Bootstrapping {#bootcrypto}
 
 These mechanisms rely on an upper layer to establish a cryptographic context
 in order to establish a shared secret from which MAC keys can be derived. This
@@ -314,4 +314,24 @@ Berlin for the conversations leading to and informing the publication of this
 document. Thanks to Mark Nottingham for posing the questions that led
 to the design space for the mechanisms described herein.
 
+--- back
 
+# Open Issues and Discussion Points
+
+- {{bootcrypto}} needs work: we need to be very clear about what happens when
+  the upper layer doesn't have any secrets from which a MAC can be derived,
+  as well as how eventual or delayed MAC might work. Does PLUS needs to
+  provide its own DH key exchange for opportunistic crypto when the upper
+  layer doesn't provide it? How does an encrypted transport on top of PLUS
+  bootstrap itself: would this leak 
+
+- MAC failures in {{sectxpath}} are presently defined to cause hard failure of
+  the upper layer transport association. This is to defend against the misuse
+  of the mechanisms for unauthorized in-band middlebox-to-middlebox signaling
+  (since the upper layer's integrity  and confidentiality protection prevents
+  meddling in its own headers.)
+  However, it may be sufficient for a PLUS receiver to signal to the upper
+  layer that a MAC failure has occurred, so it can decide whether it wants to
+  reset or not, while using the feedback channel to indicate to the sender
+  that PLUS signaling is being meddled with on the path, so it can stop 
+  signaling anything.
