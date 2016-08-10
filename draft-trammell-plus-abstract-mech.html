@@ -280,6 +280,7 @@ li, p {
 <link href="#rfc.section.5" rel="Chapter" title="5 Security Considerations"/>
 <link href="#rfc.section.6" rel="Chapter" title="6 Acknowledgments"/>
 <link href="#rfc.references" rel="Chapter" title="7 Informative References"/>
+<link href="#rfc.appendix.A" rel="Chapter" title="A Open Issues and Discussion Points"/>
 <link href="#rfc.authors" rel="Chapter"/>
 
 
@@ -357,6 +358,7 @@ li, p {
 <li>5.   <a href="#rfc.section.5">Security Considerations</a></li>
 <li>6.   <a href="#rfc.section.6">Acknowledgments</a></li>
 <li>7.   <a href="#rfc.references">Informative References</a></li>
+<li>Appendix A.   <a href="#rfc.appendix.A">Open Issues and Discussion Points</a></li>
 <li><a href="#rfc.authors">Author's Address</a></li>
 
 
@@ -427,7 +429,7 @@ li, p {
 <p class="figure">Figure 4: Direct Path to Sender Declarations</p>
 <h1 id="rfc.section.3"><a href="#rfc.section.3">3.</a> <a href="#technical-considerations" id="technical-considerations">Technical Considerations</a></h1>
 <p id="rfc.section.3.p.1">A few details must be considered in the implementation of the mechanisms described above; some are general, and some apply only in specific circumstances. They are described in the subsections below.</p>
-<h1 id="rfc.section.3.1"><a href="#rfc.section.3.1">3.1.</a> <a href="#cryptographic-context-bootstrapping" id="cryptographic-context-bootstrapping">Cryptographic Context Bootstrapping</a></h1>
+<h1 id="rfc.section.3.1"><a href="#rfc.section.3.1">3.1.</a> <a href="#bootcrypto" id="bootcrypto">Cryptographic Context Bootstrapping</a></h1>
 <p id="rfc.section.3.1.p.1">These mechanisms rely on an upper layer to establish a cryptographic context in order to establish a shared secret from which MAC keys can be derived. This cryptographic state may be established with each transport session or may be resumable across multiple transport sessions, depending on the upper layer&#8217;s design. If no context exists, though, the integrity of the declarations made via these mechanisms cannot be protected by MAC. We propose two possible solutions to this situation:</p>
 <p/>
 
@@ -464,6 +466,13 @@ li, p {
     </tr>
   </tbody>
 </table>
+<h1 id="rfc.appendix.A"><a href="#rfc.appendix.A">Appendix A.</a> <a href="#open-issues-and-discussion-points" id="open-issues-and-discussion-points">Open Issues and Discussion Points</a></h1>
+<p/>
+
+<ul>
+  <li><a href="#bootcrypto">Section 3.1</a> needs work: we need to be very clear about what happens when the upper layer doesn&#8217;t have any secrets from which a MAC can be derived, as well as how eventual or delayed MAC might work. Does PLUS needs to provide its own DH key exchange for opportunistic crypto when the upper layer doesn&#8217;t provide it? How does an encrypted transport on top of PLUS bootstrap itself: would this leak</li>
+  <li>MAC failures in <a href="#sectxpath">Section 2.1</a> are presently defined to cause hard failure of the upper layer transport association. This is to defend against the misuse of the mechanisms for unauthorized in-band middlebox-to-middlebox signaling (since the upper layer&#8217;s integrity  and confidentiality protection prevents meddling in its own headers.) However, it may be sufficient for a PLUS receiver to signal to the upper layer that a MAC failure has occurred, so it can decide whether it wants to reset or not, while using the feedback channel to indicate to the sender that PLUS signaling is being meddled with on the path, so it can stop signaling anything.</li>
+</ul>
 <h1 id="rfc.authors">
   <a href="#rfc.authors">Author's Address</a>
 </h1>

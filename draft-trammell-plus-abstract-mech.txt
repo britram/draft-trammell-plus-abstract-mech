@@ -73,10 +73,11 @@ Table of Contents
      3.2.  Adding Integrity and Confidentiality Protection Along the
            Path  . . . . . . . . . . . . . . . . . . . . . . . . . .   7
    4.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   7
-   5.  Security Considerations . . . . . . . . . . . . . . . . . . .   7
+   5.  Security Considerations . . . . . . . . . . . . . . . . . . .   8
    6.  Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .   8
    7.  Informative References  . . . . . . . . . . . . . . . . . . .   8
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   8
+   Appendix A.  Open Issues and Discussion Points  . . . . . . . . .   8
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   9
 
 1.  Introduction
 
@@ -104,8 +105,7 @@ Table of Contents
    or modify some header field - has not proven to be of much use here.
    A new approach is necessary, consisting of cryptographic integrity
    protection of network and transport layer headers which the endpoints
-   choose to expose to the path, and cryptographic confidentiality
-   protection of transport layer headers not to be exposed.
+
 
 
 
@@ -113,6 +113,9 @@ Trammell                Expires February 4, 2017                [Page 2]
 
 Internet-Draft            Path Layer Mechanisms              August 2016
 
+
+   choose to expose to the path, and cryptographic confidentiality
+   protection of transport layer headers not to be exposed.
 
    We define the "path layer" to consist of the headers and associated
    functions that are explicitly exposed to devices along the path in
@@ -160,15 +163,15 @@ Internet-Draft            Path Layer Mechanisms              August 2016
    These mechanisms are described in an implementation-independent way;
    however, there are a few basic assumptions made by the design:
 
-   o  The mechanisms can add information to selected packets in a
-      communication between two endpoints.
-
 
 
 Trammell                Expires February 4, 2017                [Page 3]
 
 Internet-Draft            Path Layer Mechanisms              August 2016
 
+
+   o  The mechanisms can add information to selected packets in a
+      communication between two endpoints.
 
    o  The mechanisms can use a shared secret between the two endpoints
       provided by some upper layer.
@@ -215,9 +218,6 @@ Internet-Draft            Path Layer Mechanisms              August 2016
    Further, the value has a fixed length of N bytes (which my also be
    part of the definition of the key).  Path-to-receiver declarations
    may be combined in a packet with sender-to-path declarations as in
-   Section 2.1, and are covered by the same MAC.  However, when
-   calculating the MAC for a path-to-receiver declaration, its value is
-   assumed to be an N-byte array of zeroes.  The MAC therefore protects
 
 
 
@@ -226,6 +226,9 @@ Trammell                Expires February 4, 2017                [Page 4]
 Internet-Draft            Path Layer Mechanisms              August 2016
 
 
+   Section 2.1, and are covered by the same MAC.  However, when
+   calculating the MAC for a path-to-receiver declaration, its value is
+   assumed to be an N-byte array of zeroes.  The MAC therefore protects
    the presence of the key and the length of the value, but not its
    content.
 
@@ -271,9 +274,6 @@ Internet-Draft            Path Layer Mechanisms              August 2016
    containing only a path-to-sender declaration.  The fact that this is
    a direct path-to-sender declaration is part of the definition of the
    key.  A path-to-sender declaration packet can only contain path-to-
-   sender declarations.  Since in the general case the path element has
-   no shared secret with which to generate a MAC, this declaration
-   cannot be integrity protected.
 
 
 
@@ -281,6 +281,10 @@ Trammell                Expires February 4, 2017                [Page 5]
 
 Internet-Draft            Path Layer Mechanisms              August 2016
 
+
+   sender declarations.  Since in the general case the path element has
+   no shared secret with which to generate a MAC, this declaration
+   cannot be integrity protected.
 
    In order for a path-to-sender declaration to traverse any network
    address translation (NAT) function along the path, the path element
@@ -327,10 +331,6 @@ Internet-Draft            Path Layer Mechanisms              August 2016
        bootstrapped.  The vocabulary of declarations can therefore not
        include declarations that must be sent on the first packet.
 
-   2.  The mechanisms can be implemented such that the MAC is eventual.
-       In this arrangement, sender-to-path declarations can be made
-       before cryptographic context establishment, but are open to
-
 
 
 Trammell                Expires February 4, 2017                [Page 6]
@@ -338,6 +338,9 @@ Trammell                Expires February 4, 2017                [Page 6]
 Internet-Draft            Path Layer Mechanisms              August 2016
 
 
+   2.  The mechanisms can be implemented such that the MAC is eventual.
+       In this arrangement, sender-to-path declarations can be made
+       before cryptographic context establishment, but are open to
        undetected modification along the path; path-to-receiver
        declarations are not allowed before cryptographic context
        establishment.  A MAC for previous sender-to-path declarations
@@ -381,11 +384,8 @@ Internet-Draft            Path Layer Mechanisms              August 2016
    declarations.  [EDITOR'S NOTE: please remove this section at
    publication.]
 
-5.  Security Considerations
 
-   This document describes abstract mechanisms by which endpoints can
-   share information about traffic flows with devices along the path,
-   replacing the functions currently performed using traffic inspection
+
 
 
 
@@ -394,6 +394,11 @@ Trammell                Expires February 4, 2017                [Page 7]
 Internet-Draft            Path Layer Mechanisms              August 2016
 
 
+5.  Security Considerations
+
+   This document describes abstract mechanisms by which endpoints can
+   share information about traffic flows with devices along the path,
+   replacing the functions currently performed using traffic inspection
    of cleartext transport headers with explicit exposure when those
    headers are encrypted.  The security and privacy threat posed by the
    application of these abstract mechanisms is a function of the
@@ -431,6 +436,35 @@ Internet-Draft            Path Layer Mechanisms              August 2016
               Representation (CBOR)", RFC 7049, DOI 10.17487/RFC7049,
               October 2013, <http://www.rfc-editor.org/info/rfc7049>.
 
+Appendix A.  Open Issues and Discussion Points
+
+   o  Section 3.1 needs work: we need to be very clear about what
+      happens when the upper layer doesn't have any secrets from which a
+      MAC can be derived, as well as how eventual or delayed MAC might
+      work.  Does PLUS needs to provide its own DH key exchange for
+
+
+
+Trammell                Expires February 4, 2017                [Page 8]
+
+Internet-Draft            Path Layer Mechanisms              August 2016
+
+
+      opportunistic crypto when the upper layer doesn't provide it?  How
+      does an encrypted transport on top of PLUS bootstrap itself: would
+      this leak
+
+   o  MAC failures in Section 2.1 are presently defined to cause hard
+      failure of the upper layer transport association.  This is to
+      defend against the misuse of the mechanisms for unauthorized in-
+      band middlebox-to-middlebox signaling (since the upper layer's
+      integrity and confidentiality protection prevents meddling in its
+      own headers.)  However, it may be sufficient for a PLUS receiver
+      to signal to the upper layer that a MAC failure has occurred, so
+      it can decide whether it wants to reset or not, while using the
+      feedback channel to indicate to the sender that PLUS signaling is
+      being meddled with on the path, so it can stop signaling anything.
+
 Author's Address
 
    Brian Trammell
@@ -445,4 +479,26 @@ Author's Address
 
 
 
-Trammell                Expires February 4, 2017                [Page 8]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Trammell                Expires February 4, 2017                [Page 9]
