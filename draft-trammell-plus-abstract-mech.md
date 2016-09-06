@@ -2,7 +2,7 @@
 title: Abstract Mechanisms for a Cooperative Path Layer under Endpoint Contol
 abbrev: Path Layer Mechanisms
 docname: draft-trammell-plus-abstract-mech
-date: 2016-08-03
+date: 2016-09-13
 category: info
 
 ipr: trust200902
@@ -104,6 +104,9 @@ of that packet.
 These mechanisms are described in an implementation-independent way; however,
 there are a few basic assumptions made by the design:
 
+- There exists a technique by which packets can be selected and grouped by the
+  sending endpoint such that these groups are visible to devices along the path
+  (e.g. using an N-tuple)
 - The mechanisms can add information to selected packets in a communication
   between two endpoints.
 - The mechanisms can use a shared secret between the two endpoints provided by
