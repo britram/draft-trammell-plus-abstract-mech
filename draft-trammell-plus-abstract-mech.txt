@@ -635,11 +635,11 @@ Author's Address
 
    Brian Trammell
    ETH Zurich
+   Gloriastrasse 35
+   8092 Zurich
+   Switzerland
 
    Email: ietf@trammell.ch
-
-
-
 
 
 
