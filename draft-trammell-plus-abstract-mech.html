@@ -408,8 +408,8 @@ li, p {
      |       +---------------+       |      +---------------+        |
      |       |       IP      |       |      |       IP      |        |
      |       +---------------+       v      +---------------+        v
-declare X-&gt;A                    read X-&gt;A                      read X-&gt;A
-compute MAC                                                    verify MAC
+declare X-&gt;A                    read X-&gt;A                         read X-&gt;A
+compute MAC                   associate w/flow                   verify MAC
 </pre>
 <p class="figure">Figure 1: Sender to Path Declaration</p>
 <h1 id="rfc.section.2.2"><a href="#rfc.section.2.2">2.2.</a> <a href="#secpathrx" id="secpathrx">Path-to-Receiver Declarations with Feedback</a></h1>
@@ -419,8 +419,21 @@ compute MAC                                                    verify MAC
 <div id="rfc.figure.2"/>
 <div id="figpathrx"/>
 <pre>
-[imagine some gratuitously colorful SVG here]
-
+             ++=============++              ++=============++  
+             ||  app layer  ||              ||  app layer  ||  
+             ++=============++              ++=============++  
+             ||  transport  ||              ||  transport  ||  
+             ++=============++              ++=============++  
+             |     path      |              |     path      |  
+[ Sender ] -&gt;| decl. Y-&gt;null |-&gt; [ Path ] -&gt;| decl. Y-&gt;B    |-&gt; [ Receiver ]
+     ^       | MAC(path,udp) |       ^      | MAC(path,udp) |        |
+     |       +---------------+       |      +---------------+        |
+     |       |      UDP      |       |      |      UDP      |        |
+     |       +---------------+       |      +---------------+        |
+     |       |       IP      |       |      |       IP      |        |
+     |       +---------------+       V      +---------------+        v
+request Y                      recognize Y                        read Y-&gt;B
+compute MAC                   overwrite Y-&gt;B           verify MAC (Y-&gt;null)
 </pre>
 <p class="figure">Figure 2: Path to Receiver Declaration</p>
 <p id="rfc.section.2.2.p.4">This mechanism allows the sender to allow the receiver to receive path declarations. However, if it is the sender that needs to know the final result of the path declaration, this can be fed back to the sender over an encrypted channel. Depending on the characteristics of the upper layer, this encrypted channel can either be provided by the upper layer, or be provided by the layer implementing the mechanisms, using a key derived from the same secret known only to the endpoints used to generate the MAC. The fact that a path-to- receiver declaration should be fed back to the sender is part of the definition of the key.</p>
@@ -428,8 +441,21 @@ compute MAC                                                    verify MAC
 <div id="rfc.figure.3"/>
 <div id="figfeedback"/>
 <pre>
-[imagine some gratuitously colorful SVG here]
-
+                                            +---------------+  
+                                            |     path      |  
+                                            | +crypt.-----+ |
+                                            | | feedback  | | 
+                                            | | Y-&gt;B      | |
+[ Sender ] &lt;--------------------------------| +-----------+ |&lt;- [ Receiver ]
+     ^                                      | MAC(path,udp) |        |
+     |                                      +---------------+        |
+     |                                      |      UDP      |        |
+     |                                      +---------------+        |
+     |                                      |       IP      |        |
+     V                                      +---------------+        v
+read Y-&gt;B                                                     feedback Y-&gt;B
+verify MAC                                                          encrypt
+                                                                compute MAC
 </pre>
 <p class="figure">Figure 3: Receiver Feedback</p>
 <h1 id="rfc.section.2.3"><a href="#rfc.section.2.3">2.3.</a> <a href="#secpathtx" id="secpathtx">Direct Path-to-Sender Declarations</a></h1>
@@ -441,7 +467,29 @@ compute MAC                                                    verify MAC
 <div id="rfc.figure.4"/>
 <div id="figpathtx"/>
 <pre>
-[imagine some gratuitously colorful SVG here]
+             ++=============++              
+send packet  ||  app layer  ||              
+     |       ++=============++              
+     |       ||  transport  ||              
+     |       ++=============++              
+     V       |     path      |              
+[ Sender ] -&gt;| MAC(path,udp) |-&gt; [ Path ]
+             +---------------+       |      
+             |    UDP p-&gt;q   |       |      
+             +---------------+       |      
+             |    IP s-&gt;r    |       |      
+             +---------------+       V      
+                                drop packet
+                                signal drop
+             +---------------+       |
+             |     path      |       V
+[ Sender ] &lt;-| decl. Z-&gt;C    |&lt;- [ Path ]
+     |       +---------------+
+     |       |    UDP q-&gt;p   |
+     |       +---------------+
+     |       |    IP  r-&gt;s   |
+     V       +---------------+
+read Z-&gt;C
 
 </pre>
 <p class="figure">Figure 4: Direct Path to Sender Declarations</p>
