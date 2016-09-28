@@ -19,6 +19,9 @@ author:
     name: Brian Trammell
     organization: ETH Zurich
     email: ietf@trammell.ch
+    street: Gloriastrasse 35
+    city: 8092 Zurich
+    country: Switzerland
 
 normative:
 
