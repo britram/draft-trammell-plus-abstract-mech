@@ -4,12 +4,12 @@
 
 PLUS BoF                                                     B. Trammell
 Internet-Draft                                                ETH Zurich
-Intended status: Informational                           August 03, 2016
-Expires: February 4, 2017
+Intended status: Informational                        September 28, 2016
+Expires: April 1, 2017
 
 
- Abstract Mechanisms for a Cooperative Path Layer under Endpoint Contol
-                   draft-trammell-plus-abstract-mech
+Abstract Mechanisms for a Cooperative Path Layer under Endpoint Control
+                  draft-trammell-plus-abstract-mech-00
 
 Abstract
 
@@ -35,7 +35,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on February 4, 2017.
+   This Internet-Draft will expire on April 1, 2017.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Trammell                Expires February 4, 2017                [Page 1]
+Trammell                  Expires April 1, 2017                 [Page 1]
 
-Internet-Draft            Path Layer Mechanisms              August 2016
+Internet-Draft            Path Layer Mechanisms           September 2016
 
 
    the Trust Legal Provisions and are provided without warranty as
@@ -66,18 +66,20 @@ Table of Contents
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
    2.  Mechanism Definitions . . . . . . . . . . . . . . . . . . . .   3
      2.1.  Sender-to-Path Declarations . . . . . . . . . . . . . . .   4
-     2.2.  Path-to-Receiver Declarations with Feedback . . . . . . .   4
-     2.3.  Direct Path-to-Sender Declarations  . . . . . . . . . . .   5
-   3.  Technical Considerations  . . . . . . . . . . . . . . . . . .   6
-     3.1.  Cryptographic Context Bootstrapping . . . . . . . . . . .   6
+     2.2.  Path-to-Receiver Declarations with Feedback . . . . . . .   5
+     2.3.  Direct Path-to-Sender Declarations  . . . . . . . . . . .   6
+   3.  Technical Considerations  . . . . . . . . . . . . . . . . . .   7
+     3.1.  Cryptographic Context Bootstrapping . . . . . . . . . . .   7
      3.2.  Adding Integrity and Confidentiality Protection Along the
            Path  . . . . . . . . . . . . . . . . . . . . . . . . . .   7
-   4.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   7
+   4.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   8
    5.  Security Considerations . . . . . . . . . . . . . . . . . . .   8
-   6.  Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .   8
-   7.  Informative References  . . . . . . . . . . . . . . . . . . .   8
-   Appendix A.  Open Issues and Discussion Points  . . . . . . . . .   8
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   9
+     5.1.  Defending against On-Path Injection of Declarations . . .   8
+     5.2.  Defending against Off-Path Injection of Declarations  . .   9
+     5.3.  Defending against fingerprinting attacks and overexposure   9
+   6.  Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  10
+   7.  Informative References  . . . . . . . . . . . . . . . . . . .  10
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  10
 
 1.  Introduction
 
@@ -104,16 +106,15 @@ Table of Contents
    layer and below - stating in an RFC that devices on path MUST NOT use
    or modify some header field - has not proven to be of much use here.
    A new approach is necessary, consisting of cryptographic integrity
-   protection of network and transport layer headers which the endpoints
 
 
 
-
-Trammell                Expires February 4, 2017                [Page 2]
+Trammell                  Expires April 1, 2017                 [Page 2]
 
-Internet-Draft            Path Layer Mechanisms              August 2016
+Internet-Draft            Path Layer Mechanisms           September 2016
 
 
+   protection of network and transport layer headers which the endpoints
    choose to expose to the path, and cryptographic confidentiality
    protection of transport layer headers not to be exposed.
 
@@ -160,20 +161,26 @@ Internet-Draft            Path Layer Mechanisms              August 2016
    path.  Third, a path element can make a declaration about a dropped
    packet back to the sender of that packet.
 
+
+
+
+
+Trammell                  Expires April 1, 2017                 [Page 3]
+
+Internet-Draft            Path Layer Mechanisms           September 2016
+
+
    These mechanisms are described in an implementation-independent way;
    however, there are a few basic assumptions made by the design:
 
-
-
-Trammell                Expires February 4, 2017                [Page 3]
-
-Internet-Draft            Path Layer Mechanisms              August 2016
-
+   o  There exists a technique by which packets can be selected and
+      grouped by the sending endpoint such that these groups are visible
+      to devices along the path (e.g. using an N-tuple).
 
    o  The mechanisms can add information to selected packets in a
       communication between two endpoints.
 
-   o  The mechanisms can use a shared secret between the two endpoints
+   o  The mechanisms use a shared secret between the two endpoints
       provided by some upper layer.
 
    o  The confidentiality and integrity of upper layer's headers and
@@ -204,8 +211,36 @@ Internet-Draft            Path Layer Mechanisms              August 2016
 
    This arrangement is illustrated in Figure 1.
 
-   [imagine some gratuitously colorful SVG here]
 
+
+
+
+
+
+
+
+
+
+Trammell                  Expires April 1, 2017                 [Page 4]
+
+Internet-Draft            Path Layer Mechanisms           September 2016
+
+
+             ++=============++              ++=============++
+             ||  app layer  ||              ||  app layer  ||
+             ++=============++              ++=============++
+             ||  transport  ||              ||  transport  ||
+             ++=============++              ++=============++
+             |     path      |              |     path      |
+[ Sender ] ->| decl. X->A    |-> [ Path ] ->| decl. X->A    |-> [ Receiver ]
+     ^       | MAC(path,udp) |       |      | MAC(path,udp) |        |
+     |       +---------------+       |      +---------------+        |
+     |       |      UDP      |       |      |      UDP      |        |
+     |       +---------------+       |      +---------------+        |
+     |       |       IP      |       |      |       IP      |        |
+     |       +---------------+       v      +---------------+        v
+declare X->A                    read X->A                      read X->A
+compute MAC                                                    verify MAC
 
                    Figure 1: Sender to Path Declaration
 
@@ -218,14 +253,6 @@ Internet-Draft            Path Layer Mechanisms              August 2016
    Further, the value has a fixed length of N bytes (which my also be
    part of the definition of the key).  Path-to-receiver declarations
    may be combined in a packet with sender-to-path declarations as in
-
-
-
-Trammell                Expires February 4, 2017                [Page 4]
-
-Internet-Draft            Path Layer Mechanisms              August 2016
-
-
    Section 2.1, and are covered by the same MAC.  However, when
    calculating the MAC for a path-to-receiver declaration, its value is
    assumed to be an N-byte array of zeroes.  The MAC therefore protects
@@ -247,6 +274,13 @@ Internet-Draft            Path Layer Mechanisms              August 2016
 
 
                   Figure 2: Path to Receiver Declaration
+
+
+
+Trammell                  Expires April 1, 2017                 [Page 5]
+
+Internet-Draft            Path Layer Mechanisms           September 2016
+
 
    This mechanism allows the sender to allow the receiver to receive
    path declarations.  However, if it is the sender that needs to know
@@ -274,14 +308,6 @@ Internet-Draft            Path Layer Mechanisms              August 2016
    containing only a path-to-sender declaration.  The fact that this is
    a direct path-to-sender declaration is part of the definition of the
    key.  A path-to-sender declaration packet can only contain path-to-
-
-
-
-Trammell                Expires February 4, 2017                [Page 5]
-
-Internet-Draft            Path Layer Mechanisms              August 2016
-
-
    sender declarations.  Since in the general case the path element has
    no shared secret with which to generate a MAC, this declaration
    cannot be integrity protected.
@@ -302,6 +328,15 @@ Internet-Draft            Path Layer Mechanisms              August 2016
    amplified reflection attacks.
 
    This arrangement is illustrated in Figure 4.
+
+
+
+
+
+Trammell                  Expires April 1, 2017                 [Page 6]
+
+Internet-Draft            Path Layer Mechanisms           September 2016
+
 
    [imagine some gratuitously colorful SVG here]
 
@@ -331,13 +366,6 @@ Internet-Draft            Path Layer Mechanisms              August 2016
        bootstrapped.  The vocabulary of declarations can therefore not
        include declarations that must be sent on the first packet.
 
-
-
-Trammell                Expires February 4, 2017                [Page 6]
-
-Internet-Draft            Path Layer Mechanisms              August 2016
-
-
    2.  The mechanisms can be implemented such that the MAC is eventual.
        In this arrangement, sender-to-path declarations can be made
        before cryptographic context establishment, but are open to
@@ -345,9 +373,9 @@ Internet-Draft            Path Layer Mechanisms              August 2016
        declarations are not allowed before cryptographic context
        establishment.  A MAC for previous sender-to-path declarations
        must be sent after cryptographic context establishment; lack of
-       receiving this MAC within a small number of packets from the
-       sender is treated by the receiver as verification failure and
-       leads to transport association reset.
+       receiving this MAC within a defined (and small) number of packets
+       from the sender is treated by the receiver as verification
+       failure and leads to transport association reset.
 
 3.2.  Adding Integrity and Confidentiality Protection Along the Path
 
@@ -356,6 +384,15 @@ Internet-Draft            Path Layer Mechanisms              August 2016
    be integrity protected using a MAC generated by the sender and
    carried within the declaration itself.  In this case, if the path
    element fails to verify the MAC, it simply ignores the declaration.
+
+
+
+
+
+Trammell                  Expires April 1, 2017                 [Page 7]
+
+Internet-Draft            Path Layer Mechanisms           September 2016
+
 
    Similarly, if a path element and the receiver share some
    cryptographic context through some out-of-band means, path to
@@ -384,32 +421,97 @@ Internet-Draft            Path Layer Mechanisms              August 2016
    declarations.  [EDITOR'S NOTE: please remove this section at
    publication.]
 
-
-
-
-
-
-Trammell                Expires February 4, 2017                [Page 7]
-
-Internet-Draft            Path Layer Mechanisms              August 2016
-
-
 5.  Security Considerations
 
    This document describes abstract mechanisms by which endpoints can
    share information about traffic flows with devices along the path,
    replacing the functions currently performed using traffic inspection
    of cleartext transport headers with explicit exposure when those
-   headers are encrypted.  The security and privacy threat posed by the
-   application of these abstract mechanisms is a function of the
-   vocabulary of declarations the endpoints use these mechanisms to
-   expose.  Care must be taken in defining this vocabulary, both to
-   prevent the definition of declarations that are obviously threatening
-   to privacy (e.g.  high-resolution, cleartext exposure of client
-   device location) or insecure (e.g. exposure of session keys for
-   transport headers and payload), as well as to minimize the potential
-   for these declarations to be used as part of a device or user
-   fingerprint for tracking and surveillance purposes.
+   headers are encrypted.  We consider four potential threats against
+   the design of these abstract mechanisms:
+
+   1.  Injection of packets or declarations by an on-path attacker
+
+   2.  Injection of packets declarations by an off-path attacker
+
+   3.  Sender fingerprinting or other inference about the content of
+       encrypted communications by an on-path attacker
+
+5.1.  Defending against On-Path Injection of Declarations
+
+   The MAC generated by a sending endpoint protects against on-path
+   injection of declarations not authorized by the sender, or an on-path
+   device spoofing the sending endpoint.  Even if one on-path device
+
+
+
+Trammell                  Expires April 1, 2017                 [Page 8]
+
+Internet-Draft            Path Layer Mechanisms           September 2016
+
+
+   manages to spoof a declaration to a device further along the path,
+   MAC verification failure at the receiving endpoint will lead to upper
+   layer association reset.
+
+5.2.  Defending against Off-Path Injection of Declarations
+
+   Since MAC verification requires the receiving endpoint, it may be
+   possible for an off-path attacker to spoof a declaration that an on-
+   path device would not be able to verify.  In order to defend against
+   this threat, the mechanisms should be implemented by exposing a hard-
+   to-guess token selected by a sending endpoint and verified by a
+   receiving endpoint as well as by on-path devices.  This token may
+   itself take the form of a declaration, or appear in a header
+   enclosing the set of declarations.
+
+5.3.  Defending against fingerprinting attacks and overexposure
+
+   Since these abstract mechanisms are designed to explicitly expose
+   metadata about encrypted traffic, the concern naturally arises that
+   overexposure of metadata can be used to infer information about the
+   type or content of encrypted information, or that information
+   radiated off a sending endpoint can be used to create a fingerprint
+   of that sender.
+
+   In order to defend against this threat, the vocabulary of signals to
+   be used with this mechanism must be designed in a restrictive way:
+
+   o  Definition of obviously-overexposing signals must be prohibited by
+      the process used to define the vocabulary.  Examples of obvious
+      overexposure include sharing end-to-end secrets with on-path
+      devices, tagging flows with a globally unique ID that can be
+      associated with a sender (e.g. for mobility applications), or
+      exposure of endpoint location at high resolution.
+
+   o  Signals must be defined to use as few bits on the wire as
+      possible, in order to reduce the cross section of the path layer
+      packet header that can be used for fingerprinting, or potentially
+      abused to coerce endpoints to add more information about their
+      traffic.
+
+   The first restriction can be implemented using an IANA registry for
+   the vocabulary of signals with a restrictive policy for addition of
+   signals such as Standards Action [RFC5226], as well as a purposefully
+   restricted codepoint space.  The second restriction can also be
+   assisted by defining a small maximum per-packet size for signals
+   exposed using the mechanism, which would also have overhead benefits.
+
+
+
+
+
+Trammell                  Expires April 1, 2017                 [Page 9]
+
+Internet-Draft            Path Layer Mechanisms           September 2016
+
+
+   We note that by replacing present plain-text transport headers with
+   encrypted transport headers, and allowing sending endpoints to
+   explicitly expose (or not expose) information about those, that the
+   cross section available for fingerprinting with these abstract
+   mechanisms is much smaller than that presented by the current TCP/IP
+   stack; see [I-D.trammell-privsec-defeating-tcpip-meta].
 
 6.  Acknowledgments
 
@@ -420,50 +522,31 @@ Internet-Draft            Path Layer Mechanisms              August 2016
    support does not imply endorsement.
 
    Thanks to Aaron Falk, Ted Hardie, Joe Hildebrand, Mirja Kuehlewind,
-   Mark Nottingham, Natasha Rooney, and the participants at the PLUS BoF
-   at IETF 96 in Berlin for the conversations leading to and informing
-   the publication of this document.  Thanks to Mark Nottingham for
+   Natasha Rooney, Kyle Rose, and the participants at the PLUS BoF at
+   IETF 96 in Berlin for the conversations leading to and informing the
+   publication of this document.  Special thanks to Mark Nottingham for
    posing the questions that led to the design space for the mechanisms
    described herein.
 
 7.  Informative References
 
+   [I-D.trammell-privsec-defeating-tcpip-meta]
+              Trammell, B., "Detecting and Defeating TCP/IP Hypercookie
+              Attacks", draft-trammell-privsec-defeating-tcpip-meta-00
+              (work in progress), July 2016.
+
    [RFC4301]  Kent, S. and K. Seo, "Security Architecture for the
               Internet Protocol", RFC 4301, DOI 10.17487/RFC4301,
               December 2005, <http://www.rfc-editor.org/info/rfc4301>.
 
+   [RFC5226]  Narten, T. and H. Alvestrand, "Guidelines for Writing an
+              IANA Considerations Section in RFCs", BCP 26, RFC 5226,
+              DOI 10.17487/RFC5226, May 2008,
+              <http://www.rfc-editor.org/info/rfc5226>.
+
    [RFC7049]  Bormann, C. and P. Hoffman, "Concise Binary Object
               Representation (CBOR)", RFC 7049, DOI 10.17487/RFC7049,
               October 2013, <http://www.rfc-editor.org/info/rfc7049>.
-
-Appendix A.  Open Issues and Discussion Points
-
-   o  Section 3.1 needs work: we need to be very clear about what
-      happens when the upper layer doesn't have any secrets from which a
-      MAC can be derived, as well as how eventual or delayed MAC might
-      work.  Does PLUS needs to provide its own DH key exchange for
-
-
-
-Trammell                Expires February 4, 2017                [Page 8]
-
-Internet-Draft            Path Layer Mechanisms              August 2016
-
-
-      opportunistic crypto when the upper layer doesn't provide it?  How
-      does an encrypted transport on top of PLUS bootstrap itself: would
-      this leak
-
-   o  MAC failures in Section 2.1 are presently defined to cause hard
-      failure of the upper layer transport association.  This is to
-      defend against the misuse of the mechanisms for unauthorized in-
-      band middlebox-to-middlebox signaling (since the upper layer's
-      integrity and confidentiality protection prevents meddling in its
-      own headers.)  However, it may be sufficient for a PLUS receiver
-      to signal to the upper layer that a MAC failure has occurred, so
-      it can decide whether it wants to reset or not, while using the
-      feedback channel to indicate to the sender that PLUS signaling is
-      being meddled with on the path, so it can stop signaling anything.
 
 Author's Address
 
@@ -474,31 +557,4 @@ Author's Address
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Trammell                Expires February 4, 2017                [Page 9]
+Trammell                  Expires April 1, 2017                [Page 10]

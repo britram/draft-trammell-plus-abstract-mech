@@ -5,7 +5,7 @@
 <head profile="http://www.w3.org/2006/03/hcard http://dublincore.org/documents/2008/08/04/dc-html/">
   <meta http-equiv="Content-Type" content="text/html; charset=us-ascii" />
 
-  <title>Abstract Mechanisms for a Cooperative Path Layer under Endpoint Contol</title>
+  <title>Abstract Mechanisms for a Cooperative Path Layer under Endpoint Control</title>
 
 <style type="text/css">/*<![CDATA[*/
 @viewport {
@@ -278,9 +278,11 @@ li, p {
 <link href="#rfc.section.3.2" rel="Chapter" title="3.2 Adding Integrity and Confidentiality Protection Along the Path"/>
 <link href="#rfc.section.4" rel="Chapter" title="4 IANA Considerations"/>
 <link href="#rfc.section.5" rel="Chapter" title="5 Security Considerations"/>
+<link href="#rfc.section.5.1" rel="Chapter" title="5.1 Defending against On-Path Injection of Declarations"/>
+<link href="#rfc.section.5.2" rel="Chapter" title="5.2 Defending against Off-Path Injection of Declarations"/>
+<link href="#rfc.section.5.3" rel="Chapter" title="5.3 Defending against fingerprinting attacks and overexposure"/>
 <link href="#rfc.section.6" rel="Chapter" title="6 Acknowledgments"/>
 <link href="#rfc.references" rel="Chapter" title="7 Informative References"/>
-<link href="#rfc.appendix.A" rel="Chapter" title="A Open Issues and Discussion Points"/>
 <link href="#rfc.authors" rel="Chapter"/>
 
 
@@ -288,8 +290,8 @@ li, p {
   <link rel="schema.dct" href="http://purl.org/dc/terms/" />
 
   <meta name="dct.creator" content="Trammell, B." />
-  <meta name="dct.identifier" content="urn:ietf:id:draft-trammell-plus-abstract-mech" />
-  <meta name="dct.issued" scheme="ISO8601" content="2016-8-03" />
+  <meta name="dct.identifier" content="urn:ietf:id:draft-trammell-plus-abstract-mech-00" />
+  <meta name="dct.issued" scheme="ISO8601" content="2016-9-28" />
   <meta name="dct.abstract" content="This document describes the operation of three abstract mechanisms for supporting an explicitly cooperative path layer in the Internet architecture. Three mechanisms are described: sender to path signaling with receiver integrity verification; path to receiver signaling with confidential feedback to sender; and direct path to sender signaling." />
   <meta name="description" content="This document describes the operation of three abstract mechanisms for supporting an explicitly cooperative path layer in the Internet architecture. Three mechanisms are described: sender to path signaling with receiver integrity verification; path to receiver signaling with confidential feedback to sender; and direct path to sender signaling." />
 
@@ -310,10 +312,10 @@ li, p {
 </tr>
 <tr>
   <td class="left">Intended status: Informational</td>
-  <td class="right">August 03, 2016</td>
+  <td class="right">September 28, 2016</td>
 </tr>
 <tr>
-  <td class="left">Expires: February 4, 2017</td>
+  <td class="left">Expires: April 1, 2017</td>
   <td class="right"></td>
 </tr>
 
@@ -321,8 +323,8 @@ li, p {
     </tbody>
   </table>
 
-  <p class="title">Abstract Mechanisms for a Cooperative Path Layer under Endpoint Contol<br />
-  <span class="filename">draft-trammell-plus-abstract-mech</span></p>
+  <p class="title">Abstract Mechanisms for a Cooperative Path Layer under Endpoint Control<br />
+  <span class="filename">draft-trammell-plus-abstract-mech-00</span></p>
   
   <h1 id="rfc.abstract">
   <a href="#rfc.abstract">Abstract</a>
@@ -334,7 +336,7 @@ li, p {
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on February 4, 2017.</p>
+<p>This Internet-Draft will expire on April 1, 2017.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -356,9 +358,11 @@ li, p {
 <li>3.2.   <a href="#rfc.section.3.2">Adding Integrity and Confidentiality Protection Along the Path</a></li>
 </ul><li>4.   <a href="#rfc.section.4">IANA Considerations</a></li>
 <li>5.   <a href="#rfc.section.5">Security Considerations</a></li>
-<li>6.   <a href="#rfc.section.6">Acknowledgments</a></li>
+<ul><li>5.1.   <a href="#rfc.section.5.1">Defending against On-Path Injection of Declarations</a></li>
+<li>5.2.   <a href="#rfc.section.5.2">Defending against Off-Path Injection of Declarations</a></li>
+<li>5.3.   <a href="#rfc.section.5.3">Defending against fingerprinting attacks and overexposure</a></li>
+</ul><li>6.   <a href="#rfc.section.6">Acknowledgments</a></li>
 <li>7.   <a href="#rfc.references">Informative References</a></li>
-<li>Appendix A.   <a href="#rfc.appendix.A">Open Issues and Discussion Points</a></li>
 <li><a href="#rfc.authors">Author's Address</a></li>
 
 
@@ -378,8 +382,9 @@ li, p {
 <p/>
 
 <ul>
+  <li>There exists a technique by which packets can be selected and grouped by the sending endpoint such that these groups are visible to devices along the path (e.g. using an N-tuple).</li>
   <li>The mechanisms can add information to selected packets in a communication between two endpoints.</li>
-  <li>The mechanisms can use a shared secret between the two endpoints provided by some upper layer.</li>
+  <li>The mechanisms use a shared secret between the two endpoints provided by some upper layer.</li>
   <li>The confidentiality and integrity of upper layer&#8217;s headers and payload are cryptographically protected by the upper layer.</li>
   <li>The declarations carried by the mechanisms can be expressed in terms of key- value pairs, such that the type and semantic meaning of the declaration are completely defined by the key. The mechanisms don&#8217;t necessarily need to be implemented using a generic key-value framing (e.g. CBOR <a href="#RFC7049">[RFC7049]</a>); the key can be implied by a position in a defined packet header.</li>
 </ul>
@@ -390,8 +395,21 @@ li, p {
 <div id="rfc.figure.1"/>
 <div id="figtxpath"/>
 <pre>
-[imagine some gratuitously colorful SVG here]
-
+             ++=============++              ++=============++  
+             ||  app layer  ||              ||  app layer  ||  
+             ++=============++              ++=============++  
+             ||  transport  ||              ||  transport  ||  
+             ++=============++              ++=============++  
+             |     path      |              |     path      |  
+[ Sender ] -&gt;| decl. X-&gt;A    |-&gt; [ Path ] -&gt;| decl. X-&gt;A    |-&gt; [ Receiver ]
+     ^       | MAC(path,udp) |       |      | MAC(path,udp) |        |
+     |       +---------------+       |      +---------------+        |
+     |       |      UDP      |       |      |      UDP      |        |
+     |       +---------------+       |      +---------------+        |
+     |       |       IP      |       |      |       IP      |        |
+     |       +---------------+       v      +---------------+        v
+declare X-&gt;A                    read X-&gt;A                      read X-&gt;A
+compute MAC                                                    verify MAC
 </pre>
 <p class="figure">Figure 1: Sender to Path Declaration</p>
 <h1 id="rfc.section.2.2"><a href="#rfc.section.2.2">2.2.</a> <a href="#secpathrx" id="secpathrx">Path-to-Receiver Declarations with Feedback</a></h1>
@@ -435,7 +453,7 @@ li, p {
 
 <ol>
   <li>The mechanisms can be implemented such that MAC is mandatory. In this arrangement, no sender-to-path and/or path-to-receiver declarations can be made until cryptographic context is bootstrapped. The vocabulary of declarations can therefore not include declarations that must be sent on the first packet.</li>
-  <li>The mechanisms can be implemented such that the MAC is eventual. In this arrangement, sender-to-path declarations can be made before cryptographic context establishment, but are open to undetected modification along the path; path-to-receiver declarations are not allowed before cryptographic context establishment. A MAC for previous sender-to-path declarations must be sent after cryptographic context establishment; lack of receiving this MAC within a small number of packets from the sender is treated by the receiver as verification failure and leads to transport association reset.</li>
+  <li>The mechanisms can be implemented such that the MAC is eventual. In this arrangement, sender-to-path declarations can be made before cryptographic context establishment, but are open to undetected modification along the path; path-to-receiver declarations are not allowed before cryptographic context establishment. A MAC for previous sender-to-path declarations must be sent after cryptographic context establishment; lack of receiving this MAC within a defined (and small) number of packets from the sender is treated by the receiver as verification failure and leads to transport association reset.</li>
 </ol>
 <h1 id="rfc.section.3.2"><a href="#rfc.section.3.2">3.2.</a> <a href="#adding-integrity-and-confidentiality-protection-along-the-path" id="adding-integrity-and-confidentiality-protection-along-the-path">Adding Integrity and Confidentiality Protection Along the Path</a></h1>
 <p id="rfc.section.3.2.p.1">If a path element and the sender share some cryptographic context through some out-of-band means, sender to path declarations can also be integrity protected using a MAC generated by the sender and carried within the declaration itself.  In this case, if the path element fails to verify the MAC, it simply ignores the declaration.</p>
@@ -445,18 +463,52 @@ li, p {
 <h1 id="rfc.section.4"><a href="#rfc.section.4">4.</a> <a href="#iana-considerations" id="iana-considerations">IANA Considerations</a></h1>
 <p id="rfc.section.4.p.1">This document has no actions for IANA. A future document specifying a concrete implementation of these mechanisms and a vocabulary of declarations may create and modify an IANA registry of such declarations. [EDITOR&#8217;S NOTE: please remove this section at publication.]</p>
 <h1 id="rfc.section.5"><a href="#rfc.section.5">5.</a> <a href="#security-considerations" id="security-considerations">Security Considerations</a></h1>
-<p id="rfc.section.5.p.1">This document describes abstract mechanisms by which endpoints can share information about traffic flows with devices along the path, replacing the functions currently performed using traffic inspection of cleartext transport headers with explicit exposure when those headers are encrypted. The security and privacy threat posed by the application of these abstract mechanisms is a function of the vocabulary of declarations the endpoints use these mechanisms to expose. Care must be taken in defining this vocabulary, both to prevent the definition of declarations that are obviously threatening to privacy (e.g.  high-resolution, cleartext exposure of client device location) or insecure (e.g. exposure of session keys for transport headers and payload), as well as to minimize the potential for these declarations to be used as part of a device or user fingerprint for tracking and surveillance purposes.</p>
+<p id="rfc.section.5.p.1">This document describes abstract mechanisms by which endpoints can share information about traffic flows with devices along the path, replacing the functions currently performed using traffic inspection of cleartext transport headers with explicit exposure when those headers are encrypted. We consider four potential threats against the design of these abstract mechanisms:</p>
+<p/>
+
+<ol>
+  <li>Injection of packets or declarations by an on-path attacker</li>
+  <li>Injection of packets declarations by an off-path attacker</li>
+  <li>Sender fingerprinting or other inference about the content of encrypted communications by an on-path attacker</li>
+</ol>
+<h1 id="rfc.section.5.1"><a href="#rfc.section.5.1">5.1.</a> <a href="#defending-against-on-path-injection-of-declarations" id="defending-against-on-path-injection-of-declarations">Defending against On-Path Injection of Declarations</a></h1>
+<p id="rfc.section.5.1.p.1">The MAC generated by a sending endpoint protects against on-path injection of declarations not authorized by the sender, or an on-path device spoofing the sending endpoint. Even if one on-path device manages to spoof a declaration to a device further along the path, MAC verification failure at the receiving endpoint will lead to upper layer association reset.</p>
+<h1 id="rfc.section.5.2"><a href="#rfc.section.5.2">5.2.</a> <a href="#defending-against-off-path-injection-of-declarations" id="defending-against-off-path-injection-of-declarations">Defending against Off-Path Injection of Declarations</a></h1>
+<p id="rfc.section.5.2.p.1">Since MAC verification requires the receiving endpoint, it may be possible for an off-path attacker to spoof a declaration that an on-path device would not be able to verify. In order to defend against this threat, the mechanisms should be implemented by exposing a hard-to-guess token selected by a sending endpoint and verified by a receiving endpoint as well as by on-path devices.  This token may itself take the form of a declaration, or appear in a header enclosing the set of declarations.</p>
+<h1 id="rfc.section.5.3"><a href="#rfc.section.5.3">5.3.</a> <a href="#defending-against-fingerprinting-attacks-and-overexposure" id="defending-against-fingerprinting-attacks-and-overexposure">Defending against fingerprinting attacks and overexposure</a></h1>
+<p id="rfc.section.5.3.p.1">Since these abstract mechanisms are designed to explicitly expose metadata about encrypted traffic, the concern naturally arises that overexposure of metadata can be used to infer information about the type or content of encrypted information, or that information radiated off a sending endpoint can be used to create a fingerprint of that sender.</p>
+<p id="rfc.section.5.3.p.2">In order to defend against this threat, the vocabulary of signals to be used with this mechanism must be designed in a restrictive way:</p>
+<p/>
+
+<ul>
+  <li>Definition of obviously-overexposing signals must be prohibited by the process used to define the vocabulary. Examples of obvious overexposure include sharing end-to-end secrets with on-path devices, tagging flows with a globally unique ID that can be associated with a sender (e.g. for mobility applications), or exposure of endpoint location at high resolution.</li>
+  <li>Signals must be defined to use as few bits on the wire as possible, in order to reduce the cross section of the path layer packet header that can be used for fingerprinting, or potentially abused to coerce endpoints to add more information about their traffic.</li>
+</ul>
+<p id="rfc.section.5.3.p.4">The first restriction can be implemented using an IANA registry for the vocabulary of signals with a restrictive policy for addition of signals such as Standards Action <a href="#RFC5226">[RFC5226]</a>, as well as a purposefully restricted codepoint space. The second restriction can also be assisted by defining a small maximum per-packet size for signals exposed using the mechanism, which would also have overhead benefits.</p>
+<p id="rfc.section.5.3.p.5">We note that by replacing present plain-text transport headers with encrypted transport headers, and allowing sending endpoints to explicitly expose (or not expose) information about those, that the cross section available for fingerprinting with these abstract mechanisms is much smaller than that presented by the current TCP/IP stack; see <a href="#I-D.trammell-privsec-defeating-tcpip-meta">[I-D.trammell-privsec-defeating-tcpip-meta]</a>.</p>
 <h1 id="rfc.section.6"><a href="#rfc.section.6">6.</a> <a href="#acknowledgments" id="acknowledgments">Acknowledgments</a></h1>
 <p id="rfc.section.6.p.1">This work is supported by the European Commission under Horizon 2020 grant agreement no. 688421 Measurement and Architecture for a Middleboxed Internet (MAMI), and by the Swiss State Secretariat for Education, Research, and Innovation under contract no. 15.0268. This support does not imply endorsement.</p>
-<p id="rfc.section.6.p.2">Thanks to Aaron Falk, Ted Hardie, Joe Hildebrand, Mirja Kuehlewind, Mark Nottingham, Natasha Rooney, and the participants at the PLUS BoF at IETF 96 in Berlin for the conversations leading to and informing the publication of this document. Thanks to Mark Nottingham for posing the questions that led to the design space for the mechanisms described herein.</p>
+<p id="rfc.section.6.p.2">Thanks to Aaron Falk, Ted Hardie, Joe Hildebrand, Mirja Kuehlewind, Natasha Rooney, Kyle Rose, and the participants at the PLUS BoF at IETF 96 in Berlin for the conversations leading to and informing the publication of this document. Special thanks to Mark Nottingham for posing the questions that led to the design space for the mechanisms described herein.</p>
 <h1 id="rfc.references"><a href="#rfc.references">7.</a> Informative References</h1>
 <table>
   <tbody>
     <tr>
       <td class="reference">
+        <b id="I-D.trammell-privsec-defeating-tcpip-meta">[I-D.trammell-privsec-defeating-tcpip-meta]</b>
+      </td>
+      <td class="top"><a>Trammell, B.</a>, "<a href="http://tools.ietf.org/html/draft-trammell-privsec-defeating-tcpip-meta-00">Detecting and Defeating TCP/IP Hypercookie Attacks</a>", Internet-Draft draft-trammell-privsec-defeating-tcpip-meta-00, July 2016.</td>
+    </tr>
+    <tr>
+      <td class="reference">
         <b id="RFC4301">[RFC4301]</b>
       </td>
       <td class="top"><a>Kent, S.</a> and <a>K. Seo</a>, "<a href="http://tools.ietf.org/html/rfc4301">Security Architecture for the Internet Protocol</a>", RFC 4301, DOI 10.17487/RFC4301, December 2005.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="RFC5226">[RFC5226]</b>
+      </td>
+      <td class="top"><a>Narten, T.</a> and <a>H. Alvestrand</a>, "<a href="http://tools.ietf.org/html/rfc5226">Guidelines for Writing an IANA Considerations Section in RFCs</a>", BCP 26, RFC 5226, DOI 10.17487/RFC5226, May 2008.</td>
     </tr>
     <tr>
       <td class="reference">
@@ -466,13 +518,6 @@ li, p {
     </tr>
   </tbody>
 </table>
-<h1 id="rfc.appendix.A"><a href="#rfc.appendix.A">Appendix A.</a> <a href="#open-issues-and-discussion-points" id="open-issues-and-discussion-points">Open Issues and Discussion Points</a></h1>
-<p/>
-
-<ul>
-  <li><a href="#bootcrypto">Section 3.1</a> needs work: we need to be very clear about what happens when the upper layer doesn&#8217;t have any secrets from which a MAC can be derived, as well as how eventual or delayed MAC might work. Does PLUS needs to provide its own DH key exchange for opportunistic crypto when the upper layer doesn&#8217;t provide it? How does an encrypted transport on top of PLUS bootstrap itself: would this leak</li>
-  <li>MAC failures in <a href="#sectxpath">Section 2.1</a> are presently defined to cause hard failure of the upper layer transport association. This is to defend against the misuse of the mechanisms for unauthorized in-band middlebox-to-middlebox signaling (since the upper layer&#8217;s integrity  and confidentiality protection prevents meddling in its own headers.) However, it may be sufficient for a PLUS receiver to signal to the upper layer that a MAC failure has occurred, so it can decide whether it wants to reset or not, while using the feedback channel to indicate to the sender that PLUS signaling is being meddled with on the path, so it can stop signaling anything.</li>
-</ul>
 <h1 id="rfc.authors">
   <a href="#rfc.authors">Author's Address</a>
 </h1>
