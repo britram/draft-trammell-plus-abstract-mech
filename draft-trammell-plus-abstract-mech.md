@@ -151,8 +151,8 @@ This arrangement is illustrated in {{figtxpath}}.
      |       +---------------+       |      +---------------+        |
      |       |       IP      |       |      |       IP      |        |
      |       +---------------+       v      +---------------+        v
-declare X->A                    read X->A                      read X->A
-compute MAC                                                    verify MAC
+declare X->A                    read X->A                         read X->A
+compute MAC                   associate w/flow                   verify MAC
 ~~~~~~~~~~~
 {: #figtxpath title="Sender to Path Declaration"}
 
@@ -182,8 +182,21 @@ This arrangement is illustrated in {{figpathrx}}.
 
 ~~~~~~~~~~~
 
-[imagine some gratuitously colorful SVG here]
-
+             ++=============++              ++=============++  
+             ||  app layer  ||              ||  app layer  ||  
+             ++=============++              ++=============++  
+             ||  transport  ||              ||  transport  ||  
+             ++=============++              ++=============++  
+             |     path      |              |     path      |  
+[ Sender ] ->| decl. Y->null |-> [ Path ] ->| decl. Y->B    |-> [ Receiver ]
+     ^       | MAC(path,udp) |       ^      | MAC(path,udp) |        |
+     |       +---------------+       |      +---------------+        |
+     |       |      UDP      |       |      |      UDP      |        |
+     |       +---------------+       |      +---------------+        |
+     |       |       IP      |       |      |       IP      |        |
+     |       +---------------+       V      +---------------+        v
+request Y                      recognize Y                        read Y->B
+compute MAC                   overwrite Y->B           verify MAC (Y->null)
 ~~~~~~~~~~~
 {: #figpathrx title="Path to Receiver Declaration"}
 
@@ -200,9 +213,21 @@ definition of the key.
 This arrangement is illustrated in {{figfeedback}}.
 
 ~~~~~~~~~~~
-
-[imagine some gratuitously colorful SVG here]
-
+                                            +---------------+  
+                                            |     path      |  
+                                            | +crypt.-----+ |
+                                            | | feedback  | | 
+                                            | | Y->B      | |
+[ Sender ] <--------------------------------| +-----------+ |<- [ Receiver ]
+     ^                                      | MAC(path,udp) |        |
+     |                                      +---------------+        |
+     |                                      |      UDP      |        |
+     |                                      +---------------+        |
+     |                                      |       IP      |        |
+     V                                      +---------------+        v
+read Y->B                                                     feedback Y->B
+verify MAC                                                          encrypt
+                                                                compute MAC
 ~~~~~~~~~~~
 {: #figfeedback title="Receiver Feedback"}
 
@@ -234,7 +259,29 @@ This arrangement is illustrated in {{figpathtx}}.
 
 ~~~~~~~~~~~
 
-[imagine some gratuitously colorful SVG here]
+             ++=============++              
+send packet  ||  app layer  ||              
+     |       ++=============++              
+     |       ||  transport  ||              
+     |       ++=============++              
+     V       |     path      |              
+[ Sender ] ->| MAC(path,udp) |-> [ Path ]
+             +---------------+       |      
+             |    UDP p->q   |       |      
+             +---------------+       |      
+             |    IP s->r    |       |      
+             +---------------+       V      
+                                drop packet
+                                signal drop
+             +---------------+       |
+             |     path      |       V
+[ Sender ] <-| decl. Z->C    |<- [ Path ]
+     |       +---------------+
+     |       |    UDP q->p   |
+     |       +---------------+
+     |       |    IP  r->s   |
+     V       +---------------+
+read Z->C
 
 ~~~~~~~~~~~
 {: #figpathtx title="Direct Path to Sender Declarations"}
