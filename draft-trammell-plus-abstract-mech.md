@@ -44,8 +44,8 @@ feedback to sender; and direct path to sender signaling.
 # Introduction
 
 The boundary between the network and transport layers was originally defined
-to be that between information used (and potentially modified) hop-by-
-hop, and that used end-to-end. End-to-end information in the transport layer
+to be that between information used (and potentially modified) hop-by-hop, 
+and that used end-to-end. End-to-end information in the transport layer
 is associated with state at the endpoints, but processing of network-layer
 information was assumed to be stateless.
 
